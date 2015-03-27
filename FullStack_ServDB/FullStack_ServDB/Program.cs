@@ -7,6 +7,7 @@ using System.Net.Sockets;
 
 /* 비동기 소켓을 사용함.
  * MSDN Socket Class : https://msdn.microsoft.com/ko-kr/library/System.Net.Sockets.Socket(v=vs.110).aspx
+ * Sync vs Async : http://www.devpia.com/MAEUL/Contents/Detail.aspx?BoardID=51&MAEULNo=20&no=5622
  * Using Async, Await : https://msdn.microsoft.com/ko-kr/library/hh191443.aspx
  * Flow Control of Async Socket Program : https://msdn.microsoft.com/ko-kr/library/hh873191.aspx
  * Async Web Serv : http://nowonbun.tistory.com/257
