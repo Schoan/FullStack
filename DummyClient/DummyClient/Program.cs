@@ -93,9 +93,119 @@ namespace DummyClient
                             _sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(Send_Completed);
                             _sendArgs.UserToken = _telegram;
                             m_Client.SendAsync(_sendArgs);
-                        }
+                        }                      
                     }
+                    else { break; }
                 }
+            }
+        }
+
+        public void SendDisplay(String nMessage, ChatType nType)
+        {
+            StringBuilder buffer = new StringBuilder();
+            switch(nType)
+            {
+                case ChatType.Send:
+                    buffer.Append("SendMessage : ");
+                    break;
+                case ChatType.Receive:
+                    buffer.Append("RecieveMessage : ");
+                    break;
+                case ChatType.System:
+                    buffer.Append("SystemMessage : ");
+                    break;
+            }
+
+            buffer.Append(nMessage);
+            if(m_Line < 20)
+            {
+                m_Display.Add(buffer);
+            }
+            else
+            {
+                m_Display.RemoveAt(0);
+                m_Display.Add(buffer);
+            }
+            m_Line++;
+            Console.Clear();
+            for(int i=0; i<20; i++)
+            {
+                if(i<m_Display.Count)
+                {
+                    Console.WriteLine(m_Display[i].ToString());
+                }
+                else
+                {
+                    Console.WriteLine();
+                }
+            }
+            Console.Write("Input Msg (exit - 종료): ");
+        }
+
+        public AsyncClient()
+        {
+            m_Display = new List<StringBuilder>();
+            m_Line = 0;
+
+            Socket _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPEndPoint _ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000);
+
+            SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
+            _args.RemoteEndPoint = _ipep;
+            _args.Completed += new EventHandler<SocketAsyncEventArgs>(Connect_Completed);
+
+            _client.ConnectAsync(_args);
+            DataInput();
+        }
+
+        private void Connect_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            m_Client = (Socket)sender;
+
+            if(m_Client.Connected)
+            {
+                Telegram _telegram = new Telegram();
+                SocketAsyncEventArgs _receiveArgs = new SocketAsyncEventArgs();
+                _receiveArgs.UserToken = _telegram;
+                _receiveArgs.SetBuffer(_telegram.GetBuffer(), 0, 4);
+                _receiveArgs.Completed += new EventHandler<SocketAsyncEventArgs>(Receive_Completed);
+
+                m_Client.ReceiveAsync(_receiveArgs);
+                SendDisplay("Server connection Success", ChatType.System);
+            }
+            else
+            {
+                m_Client = null;
+                SendDisplay("Connection Failed!", ChatType.System);
+                SendDisplay("Press any key... ", ChatType.System);
+            }
+        }
+
+        private void Send_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            Socket _client = (Socket)sender;
+            Telegram _telegram = (Telegram)e.UserToken;
+            _client.Send(_telegram.Data);
+            SendDisplay(_telegram.GetData(), ChatType.Send);
+        }
+
+        private void Receive_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            Socket _client = (Socket)sender;
+            Telegram _telegram = (Telegram)e.UserToken;
+            _telegram.SetLength(e.Buffer);
+            _telegram.InitData();
+
+            if(_client.Connected)
+            {
+                _client.Receive(_telegram.Data, _telegram.DataLength, SocketFlags.None);
+                SendDisplay(_telegram.GetData(), ChatType.Receive);
+                _client.ReceiveAsync(e);
+            }
+            else
+            {
+                SendDisplay("Connection Failed!", ChatType.System);
+                m_Client = null;
             }
         }
 
