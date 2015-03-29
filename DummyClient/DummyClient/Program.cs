@@ -148,7 +148,7 @@ namespace DummyClient
             m_Line = 0;
 
             Socket _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint _ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000);
+            IPEndPoint _ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 16000);
 
             SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
             _args.RemoteEndPoint = _ipep;
