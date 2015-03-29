@@ -18,7 +18,6 @@ using System.Net.Sockets;
 
 namespace FullStack_ServDB
 {
-    // 옮겨적음 : http://nowonbun.tistory.com/253
     public struct Telegram 
     {
         private int m_DataLength;
@@ -194,7 +193,7 @@ namespace FullStack_ServDB
             _server.AcceptAsync(e);
         }
 
-        private void Recieve_Completed(object sender, SocketAsyncEventArgs e)
+        private void Receive_Completed(object sender, SocketAsyncEventArgs e)
         {
             Socket _client = (Socket)sender;
             Telegram _telegram = (Telegram)e.UserToken;
